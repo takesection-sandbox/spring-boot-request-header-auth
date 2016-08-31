@@ -16,6 +16,8 @@
 package jp.pigumer.app;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -29,13 +31,14 @@ import org.springframework.security.web.authentication.preauth.RequestHeaderAuth
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 
 @Configuration
+@EnableConfigurationProperties(RequestHeaderSecurityProperties.class)
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(securedEnabled = true)
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     
-    // Default value: "SM_USER"
-    private String principalRequestHeader = "host";
-    
+    @Autowired
+    RequestHeaderSecurityProperties properties;
+
     @Autowired
     UserDetailsServiceImpl userDetailsService;
     
@@ -63,7 +66,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     public RequestHeaderAuthenticationFilter authenticationFilter() throws Exception {
         RequestHeaderAuthenticationFilter authenticationFilter = new RequestHeaderAuthenticationFilter();
         authenticationFilter.setAuthenticationManager(authenticationManagerBean());
-        authenticationFilter.setPrincipalRequestHeader(principalRequestHeader);
+        authenticationFilter.setPrincipalRequestHeader(properties.getHeaderName());
         authenticationFilter.setExceptionIfHeaderMissing(false);
         return authenticationFilter;
     }
